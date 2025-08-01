@@ -1,11 +1,10 @@
 import bpy
+import bpy_extras
 
 from .stretch_vertex import MYADDON_OT_stretch_vertex
 from .create_ico_sphere import MYADDON_OT_create_ico_sphere
 from .export_scene import MYADDON_OT_export_scene
 from . import bl_info as bl_info
-from .create_spawn_point import MY_ADDON_OT_SPAWN_CREATE_PLAYER_SYMBOL, MY_ADDON_OT_SPAWN_CREATE_ENEMY_SYMBOL
-
 
 
 #トップバーの拡張メニュー
@@ -36,12 +35,8 @@ class TOPBAR_MT_my_menu(bpy.types.Menu):
         self.layout.separator()
         self.layout.operator(MYADDON_OT_export_scene.bl_idname,
                              text = MYADDON_OT_export_scene.bl_label)
-        #区切り線
-        self.layout.separator()
-        self.layout.operator(MY_ADDON_OT_SPAWN_CREATE_PLAYER_SYMBOL.bl_idname,
-                             text = MY_ADDON_OT_SPAWN_CREATE_PLAYER_SYMBOL.bl_label)
-        self.layout.operator(MY_ADDON_OT_SPAWN_CREATE_ENEMY_SYMBOL.bl_idname,
-                             text = MY_ADDON_OT_SPAWN_CREATE_ENEMY_SYMBOL.bl_label)
+        
+
 
     #既存のメニューにサブメニューを追加
     def submenu(self, context):

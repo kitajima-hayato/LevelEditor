@@ -26,12 +26,6 @@ from .export_scene import MYADDON_OT_export_scene
 from .file_name import OBJECT_PT_file_name, MYADDON_OT_add_filename
 from .add_collider import MYADDON_OT_add_collider, OBJECT_PT_collider
 from .draw_collider import DrawCollider
-from . import disabled
-from .load_spawn_point import load_spawn_point, MY_ADDON_OT_spawn_import_symbol
-from .create_spawn_point import MY_ADDON_OT_spawn_create_symbol, MY_ADDON_OT_SPAWN_CREATE_PLAYER_SYMBOL,MY_ADDON_OT_SPAWN_CREATE_ENEMY_SYMBOL
-
-
-
 
 
 #blenderに登録するクラスリスト
@@ -44,13 +38,6 @@ classes = (
     MYADDON_OT_add_filename,
     MYADDON_OT_add_collider,
     OBJECT_PT_collider,
-    disabled.Disabled_Flag,
-    disabled.Disabled_Flag_PT_Panel,
-    load_spawn_point,
-    MY_ADDON_OT_spawn_import_symbol,
-    MY_ADDON_OT_spawn_create_symbol,
-    MY_ADDON_OT_SPAWN_CREATE_PLAYER_SYMBOL,
-    MY_ADDON_OT_SPAWN_CREATE_ENEMY_SYMBOL,
 )
 
 #Add On Startup callback
@@ -64,9 +51,6 @@ def register():
     #3dビューに描画関数を追加
     DrawCollider.handle = bpy.types.SpaceView3D.draw_handler_add(
         DrawCollider.draw_collider,(),"WINDOW","POST_VIEW")
-    
-    #カスタムプロパティを登録
-
     print("レベルエディタが有効化")
     
 #Add On Disable callback
@@ -76,8 +60,6 @@ def unregister():
 
     #3dビューから描画関数を削除
     bpy.types.SpaceView3D.draw_handler_remove(DrawCollider.handle,"WINDOW")
-
-    #カスタムプロパティを削除
 
     # クラス登録解除
     for cls in classes:

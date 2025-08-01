@@ -48,15 +48,25 @@ void LevelLoader::Load(const std::string& fileName)
 
 		// MESH
 		if (type.compare("MESH") == 0) {
-			/// 要素追加
+			
+			/// 無効フラグがある場合はスキップ
+			if (object.contains("disabled_flag") && object["disabled_flag"].get<bool>()) {
+				continue;
+			}
+			
+			/// ObjectData要素追加
 			levelData->objects.emplace_back(LevelLoader::ObjectData{});
 			/// 追加した要素の参照を得る
 			LevelLoader::ObjectData& objectData = levelData->objects.back();
-
-			if (object.contains("name")) {
-				objectData.fileName = object["name"];
-				objectData.fileName += ".obj"; // ファイル名に拡張子を追加
+			
+			if (object.contains("file_name")) {
+				objectData.fileName = object["file_name"];
 			}
+			else if (object.contains("name")) {
+				objectData.fileName = object["name"];
+			}
+			/// ファイル名に拡張子を追加
+			objectData.fileName += objPath;
 
 
 			/// トランスフォームのパラメータ読み込み
@@ -74,8 +84,77 @@ void LevelLoader::Load(const std::string& fileName)
 			objectData.transform.scale.y = (float)transform["scaling"][2];
 			objectData.transform.scale.z = (float)transform["scaling"][1];
 
+
+		}
+		else if (type.compare("PlayerSpawn") == 0) {
+
+			/// 無効フラグがある場合はスキップ
+			if (object.contains("disabled_flag") && object["disabled_flag"].get<bool>()) {
+				continue;
+			}
+
+			/// 新しい PlayerSpawnData を追加
+			levelData->playerSpawn.emplace_back(LevelLoader::PlayerSpawnData{});
+			LevelLoader::PlayerSpawnData& spawnData = levelData->playerSpawn.back();
+
+			/// ファイル名の読み込み
+			if (object.contains("file_name")) {
+				spawnData.fileName = object["file_name"];
+			} else if (object.contains("name")) {
+				spawnData.fileName = object["name"];
+			}
+
+			/// 必要に応じて拡張子を追加（例えば ".obj"）
+			spawnData.fileName += objPath;
+
+			// Transform
+			const auto& transform = object["transform"];
+			// Translate
+			spawnData.transform.translate.x = static_cast<float>(transform["translation"][0]);
+			spawnData.transform.translate.y = static_cast<float>(transform["translation"][2]);
+			spawnData.transform.translate.z = static_cast<float>(transform["translation"][1]);
+			// Rotate
+			spawnData.transform.rotate.x = static_cast<float>(transform["rotation"][0]);
+			spawnData.transform.rotate.y = static_cast<float>(transform["rotation"][2]);
+			spawnData.transform.rotate.z = static_cast<float>(transform["rotation"][1]);
+
 			
 		}
+		else if (type.compare("EnemySpawn") == 0) {
+			/// 無効フラグがある場合はスキップ
+			if (object.contains("disabled_flag") && object["disabled_flag"].get<bool>()) {
+				continue;
+			}
+			/// 新しい EnemySpawnData を追加
+			levelData->enemySpawn.emplace_back(LevelLoader::EnemySpawnData{});
+			LevelLoader::EnemySpawnData& enemyData = levelData->enemySpawn.back();
+			/// ファイル名の読み込み
+			if (object.contains("file_name")) {
+				enemyData.fileName = object["file_name"];
+			} else if (object.contains("name")) {
+				enemyData.fileName = object["name"];
+			}
+			/// 必要に応じて拡張子を追加（例えば ".obj"）
+			enemyData.fileName += objPath;
+			// Transform
+			const auto& transform = object["transform"];
+			// Translate
+			enemyData.transform.translate.x = static_cast<float>(transform["translation"][0]);
+			enemyData.transform.translate.y = static_cast<float>(transform["translation"][2]);
+			enemyData.transform.translate.z = static_cast<float>(transform["translation"][1]);
+			// Rotate
+			enemyData.transform.rotate.x = static_cast<float>(transform["rotation"][0]);
+			enemyData.transform.rotate.y = static_cast<float>(transform["rotation"][2]);
+			enemyData.transform.rotate.z = static_cast<float>(transform["rotation"][1]);
+
+			enemyData.transform.scale.x = 1.0f; // デフォルトスケール
+			enemyData.transform.scale.y = 1.0f; // デフォルトスケール
+			enemyData.transform.scale.z = 1.0f; // デフォルトスケール
+			
+		}
+
+
+
 
 
 		/// @ オブジェクト走査を再帰関数にまとめ、再帰呼び出しで枝を走査する
@@ -105,6 +184,7 @@ void LevelLoader::Update()
 {
 	for (auto& object : objects) {
 		if (object) {
+#ifdef _DEBUG
 			// ImGuiで座標変更UIを表示
 			ImGui::Begin("Object Transform");
 
@@ -124,7 +204,7 @@ void LevelLoader::Update()
 			}
 
 			ImGui::End();
-
+#endif
 			object->Update();
 		}
 	}
@@ -141,4 +221,29 @@ void LevelLoader::Draw()
 	for (auto& object : objects) {
 		object->Draw();
 	}
+}
+
+
+const std::vector<LevelLoader::PlayerSpawnData>& LevelLoader::GetPlayerSpawns() const
+{
+	assert(levelData);
+	return levelData->playerSpawn;
+}
+
+bool LevelLoader::HasPlayerSpawn() const
+{
+	assert(levelData);
+	return !levelData->playerSpawn.empty();
+}
+
+const std::vector<LevelLoader::EnemySpawnData>& LevelLoader::GetEnemySpawns() const
+{
+	assert(levelData);
+	return levelData->enemySpawn;
+}
+
+uint32_t LevelLoader::GetEnemySpawnCount() const
+{
+	assert(levelData);
+	return static_cast<uint32_t>(levelData->enemySpawn.size());
 }

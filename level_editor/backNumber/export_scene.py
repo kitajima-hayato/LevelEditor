@@ -148,18 +148,10 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
         #シーンのオブジェクト１個分のjsonオブジェクト作成
         json_object = dict()
         #オブジェクトの種類
-        if "type" in object: # カスタムプロパティで指定された場合
-            json_object["type"] = object["type"]
-        else:
-            json_object["type"] = object.type
+        json_object["type"] = object.type
         #オブジェクト名
         json_object["name"] = object.name
-
-        # カスタムプロパティ'無効化フラグ'
-        if "disabled_flag" in object:
-            json_object["disabled_flag"] = object["disabled_flag"]
-
-        # カスタムプロパティ 'file_name'
+         # カスタムプロパティ 'file_name'
         if "file_name" in object:
             json_object["file_name"] = object["file_name"]
         else:
